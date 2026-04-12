@@ -274,7 +274,7 @@ body {
 /* グラフ */
 .weather-chart {
   position: relative;
-  height: 180px;
+  height: 220px;
   background: linear-gradient(180deg, rgba(255,138,92,0.04) 0%, rgba(255,255,255,0) 100%);
   border-radius: var(--radius-sm);
   padding: 8px 4px;

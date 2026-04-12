@@ -116,6 +116,93 @@ function renderWeather(data) {
 }
 
 function renderTempChart(hourly) {
+  const temps = hourly.map((h) => h.temp);
+  const maxTemp = Math.max(...temps);
+  const minTemp = Math.min(...temps);
+  const avgTemp = Math.round(temps.reduce((a, b) => a + b, 0) / temps.length);
+
+  // 最高・最低・平均に最も近いインデックスを特定
+  const maxIdx = temps.indexOf(maxTemp);
+  const minIdx = temps.indexOf(minTemp);
+  // 平均に最も近い点を探す（最高・最低と被らないように）
+  let avgIdx = -1;
+  let avgDiff = Infinity;
+  temps.forEach((t, i) => {
+    if (i !== maxIdx && i !== minIdx && Math.abs(t - avgTemp) < avgDiff) {
+      avgDiff = Math.abs(t - avgTemp);
+      avgIdx = i;
+    }
+  });
+
+  const labelIndices = { max: maxIdx, min: minIdx, avg: avgIdx };
+
+  // ポイントのスタイルをカスタマイズ
+  const pointRadius = temps.map((_, i) =>
+    i === maxIdx || i === minIdx || i === avgIdx ? 5 : 2
+  );
+  const pointBgColor = temps.map((_, i) => {
+    if (i === maxIdx) return '#ef4444';
+    if (i === minIdx) return '#3b82f6';
+    if (i === avgIdx) return '#8b5cf6';
+    return '#ff8a5c';
+  });
+  const pointBorderColor = temps.map((_, i) => {
+    if (i === maxIdx) return '#fff';
+    if (i === minIdx) return '#fff';
+    if (i === avgIdx) return '#fff';
+    return 'transparent';
+  });
+  const pointBorderWidth = temps.map((_, i) =>
+    i === maxIdx || i === minIdx || i === avgIdx ? 2 : 0
+  );
+
+  // 気温ラベルを描画するプラグイン
+  const tempLabelPlugin = {
+    id: 'tempLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx: c } = chart;
+      const meta = chart.getDatasetMeta(0);
+
+      [
+        { idx: labelIndices.max, label: `${maxTemp}°`, color: '#ef4444', tag: '最高' },
+        { idx: labelIndices.min, label: `${minTemp}°`, color: '#3b82f6', tag: '最低' },
+        { idx: labelIndices.avg, label: `${avgTemp}°`, color: '#8b5cf6', tag: '平均' },
+      ].forEach(({ idx, label, color, tag }) => {
+        if (idx < 0) return;
+        const point = meta.data[idx];
+        const x = point.x;
+        const y = point.y;
+        const isTop = idx === maxIdx;
+        const offsetY = isTop ? -12 : 14;
+
+        // 背景付きラベル
+        const text = `${tag} ${label}`;
+        c.save();
+        c.font = 'bold 10px -apple-system, sans-serif';
+        const textW = c.measureText(text).width;
+        const padX = 5;
+        const padY = 3;
+        const boxW = textW + padX * 2;
+        const boxH = 16 + padY * 2;
+        const boxX = x - boxW / 2;
+        const boxY = y + offsetY - boxH / 2;
+
+        c.fillStyle = color;
+        c.globalAlpha = 0.15;
+        c.beginPath();
+        c.roundRect(boxX, boxY, boxW, boxH, 4);
+        c.fill();
+
+        c.globalAlpha = 1;
+        c.fillStyle = color;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(text, x, y + offsetY);
+        c.restore();
+      });
+    },
+  };
+
   const ctx = document.getElementById('temp-chart').getContext('2d');
   new Chart(ctx, {
     type: 'line',
@@ -124,7 +211,7 @@ function renderTempChart(hourly) {
       datasets: [
         {
           label: '気温 (°C)',
-          data: hourly.map((h) => h.temp),
+          data: temps,
           borderColor: '#ff8a5c',
           backgroundColor: (context) => {
             const chart = context.chart;
@@ -137,8 +224,10 @@ function renderTempChart(hourly) {
           },
           fill: true,
           tension: 0.4,
-          pointRadius: 3,
-          pointBackgroundColor: '#ff8a5c',
+          pointRadius,
+          pointBackgroundColor: pointBgColor,
+          pointBorderColor,
+          pointBorderWidth,
           borderWidth: 2.5,
         },
       ],
@@ -146,6 +235,9 @@ function renderTempChart(hourly) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: { top: 24, bottom: 8 },
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -168,6 +260,7 @@ function renderTempChart(hourly) {
         },
       },
     },
+    plugins: [tempLabelPlugin],
   });
 }
 
