@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadNews('economy', 'news-list');
   loadNews('weekly-economy', 'weekly-news-list');
   setupNewsTabs();
+  // 他のタブのデータをバックグラウンドでプリフェッチ
+  prefetchAllNews();
 });
 
 // ---- ヘッダー（日付表示） ----
@@ -338,7 +340,13 @@ function renderNews(articles, containerId) {
         <li class="news-list__item">
           <button class="news-list__btn" data-index="${i}" data-container="${containerId}">
             <span class="news-list__number">${i + 1}</span>
-            <span class="news-list__title">${article.title}</span>
+            ${article.thumbnail
+              ? `<img class="news-list__thumb" src="${article.thumbnail}" alt="" loading="lazy" onerror="this.style.display='none'">`
+              : ''}
+            <span class="news-list__body">
+              <span class="news-list__title">${article.title}</span>
+              <span class="news-list__meta">${article.source}${article.source && article.publishedAt ? ' ・ ' : ''}${article.publishedAt}</span>
+            </span>
             <span class="news-list__arrow">›</span>
           </button>
         </li>`
@@ -374,6 +382,7 @@ function openNewsModal(article) {
         <span class="modal-date">${article.publishedAt || ''}</span>
       </div>
       <h3 class="modal-title">${article.title}</h3>
+      ${article.thumbnail ? `<img class="modal-thumb" src="${article.thumbnail}" alt="" onerror="this.style.display='none'">` : ''}
       <p class="modal-summary">${article.summary || '詳細情報はありません。'}</p>
       <a class="modal-link" href="${article.url}" target="_blank" rel="noopener">
         元の記事を読む →

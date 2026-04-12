@@ -188,7 +188,13 @@ const NEWS_RSS_URLS = {
   'weekly-popular': 'https://news.google.com/rss/search?q=%E8%A9%B1%E9%A1%8C+OR+%E6%B3%A8%E7%9B%AE+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
 };
 
+// ニュースキャッシュ（タブ切替時の再取得を防ぐ）
+const newsCache = {};
+
 async function fetchNews(category) {
+  // キャッシュがあればそのまま返す
+  if (newsCache[category]) return newsCache[category];
+
   const rssUrl = NEWS_RSS_URLS[category];
   if (!rssUrl) return [];
 
@@ -204,7 +210,7 @@ async function fetchNews(category) {
     throw new Error('News RSS parse error');
   }
 
-  return data.items.slice(0, 5).map((item) => {
+  const articles = data.items.slice(0, 5).map((item) => {
     // Google News のタイトルは「記事タイトル - メディア名」の形式
     const titleParts = item.title.split(' - ');
     const source = titleParts.length > 1 ? titleParts.pop().trim() : '';
@@ -213,6 +219,13 @@ async function fetchNews(category) {
     // 公開日時をフォーマット
     const pubDate = new Date(item.pubDate);
     const publishedAt = `${pubDate.getMonth() + 1}/${pubDate.getDate()} ${pubDate.getHours()}:${String(pubDate.getMinutes()).padStart(2, '0')}`;
+
+    // description からサムネイル画像を抽出
+    let thumbnail = item.thumbnail || item.enclosure?.link || '';
+    if (!thumbnail && item.description) {
+      const imgMatch = item.description.match(/<img[^>]+src=["']([^"']+)["']/);
+      if (imgMatch) thumbnail = imgMatch[1];
+    }
 
     // description から要約テキストを抽出（HTMLタグ除去）
     const summary = item.description
@@ -224,7 +237,21 @@ async function fetchNews(category) {
       url: item.link,
       source,
       publishedAt,
+      thumbnail,
       summary: summary || 'この記事の詳細は元のサイトでご覧ください。',
     };
+  });
+
+  newsCache[category] = articles;
+  return articles;
+}
+
+/**
+ * 全ニュースカテゴリをバックグラウンドでプリフェッチ
+ */
+function prefetchAllNews() {
+  const categories = Object.keys(NEWS_RSS_URLS);
+  categories.forEach((cat) => {
+    fetchNews(cat).catch(() => {});
   });
 }
