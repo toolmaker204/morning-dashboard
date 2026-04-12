@@ -116,6 +116,14 @@ function renderWeather(data) {
   `;
 
   renderTempChart(data.hourly);
+
+  // タイムラインを8時の位置にスクロール
+  const timeline = container.querySelector('.weather-timeline');
+  const items = timeline.querySelectorAll('.weather-timeline__item');
+  const targetIdx = data.hourly.findIndex((h) => h.hour === '8時');
+  if (timeline && items[targetIdx]) {
+    timeline.scrollLeft = items[targetIdx].offsetLeft - timeline.offsetLeft;
+  }
 }
 
 function renderTempChart(hourly) {
