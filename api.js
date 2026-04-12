@@ -172,27 +172,32 @@ function getClothingSuggestion(high, low) {
 
 /**
  * ニュースデータを取得する（Google News RSS → rss2json.com 経由）
- * @param {string} category - カテゴリ ('economy' | 'it' | 'popular')
+ * @param {string} category - カテゴリ
  * @returns {Promise<Array>} ニュース記事の配列
  */
 
-// Google News RSS のトピックID（日本語版）
+// Google News RSS URL
 const NEWS_RSS_URLS = {
   // 今日のニュース
-  economy:         'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
-  it:              'https://news.google.com/rss/search?q=%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+OR+IT+OR+AI&hl=ja&gl=JP&ceid=JP:ja',
-  popular:         'https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja',
+  popular:       'https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja',
+  economy:       'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
+  it:            'https://news.google.com/rss/search?q=%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+OR+IT+OR+AI&hl=ja&gl=JP&ceid=JP:ja',
+  sports:        'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
+  entertainment: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNREpxYW5RU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
+  world:         'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
   // 今週のニュース（when:7d で直近7日に絞る）
-  'weekly-economy': 'https://news.google.com/rss/search?q=%E7%B5%8C%E6%B8%88+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
-  'weekly-it':      'https://news.google.com/rss/search?q=%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+OR+IT+OR+AI+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
-  'weekly-popular': 'https://news.google.com/rss/search?q=%E8%A9%B1%E9%A1%8C+OR+%E6%B3%A8%E7%9B%AE+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-popular':       'https://news.google.com/rss/search?q=%E8%A9%B1%E9%A1%8C+OR+%E6%B3%A8%E7%9B%AE+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-economy':       'https://news.google.com/rss/search?q=%E7%B5%8C%E6%B8%88+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-it':            'https://news.google.com/rss/search?q=%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+OR+IT+OR+AI+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-sports':        'https://news.google.com/rss/search?q=%E3%82%B9%E3%83%9D%E3%83%BC%E3%83%84+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-entertainment': 'https://news.google.com/rss/search?q=%E3%82%A8%E3%83%B3%E3%82%BF%E3%83%A1+OR+%E8%8A%B8%E8%83%BD+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-world':         'https://news.google.com/rss/search?q=%E5%9B%BD%E9%9A%9B+OR+%E6%B5%B7%E5%A4%96+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
 };
 
 // ニュースキャッシュ（タブ切替時の再取得を防ぐ）
 const newsCache = {};
 
 async function fetchNews(category) {
-  // キャッシュがあればそのまま返す
   if (newsCache[category]) return newsCache[category];
 
   const rssUrl = NEWS_RSS_URLS[category];
@@ -211,16 +216,13 @@ async function fetchNews(category) {
   }
 
   const articles = data.items.slice(0, 5).map((item) => {
-    // Google News のタイトルは「記事タイトル - メディア名」の形式
     const titleParts = item.title.split(' - ');
     const source = titleParts.length > 1 ? titleParts.pop().trim() : '';
     const title = titleParts.join(' - ').trim();
 
-    // 公開日時をフォーマット
     const pubDate = new Date(item.pubDate);
     const publishedAt = `${pubDate.getMonth() + 1}/${pubDate.getDate()} ${pubDate.getHours()}:${String(pubDate.getMinutes()).padStart(2, '0')}`;
 
-    // description から要約テキストを抽出（HTMLタグ除去）
     const summary = item.description
       ? item.description.replace(/<[^>]*>/g, '').trim().slice(0, 200)
       : '';
@@ -230,64 +232,19 @@ async function fetchNews(category) {
       url: item.link,
       source,
       publishedAt,
-      thumbnail: '',
       summary: summary || 'この記事の詳細は元のサイトでご覧ください。',
     };
   });
 
   newsCache[category] = articles;
-
-  // バックグラウンドで og:image サムネイルを取得
-  fetchOgImages(articles, category);
-
   return articles;
-}
-
-/**
- * 各記事の og:image をバックグラウンドで取得しキャッシュを更新する
- * allorigins.win を CORSプロキシとして使用
- */
-async function fetchOgImages(articles, category) {
-  const promises = articles.map(async (article, i) => {
-    try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(article.url)}`;
-      const res = await fetch(proxyUrl);
-      if (!res.ok) return;
-      const html = await res.text();
-
-      // og:image を抽出
-      const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-                    || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-      if (ogMatch && ogMatch[1]) {
-        article.thumbnail = ogMatch[1];
-      }
-    } catch {
-      // サムネイル取得失敗は無視
-    }
-  });
-
-  await Promise.allSettled(promises);
-
-  // キャッシュを更新
-  if (newsCache[category]) {
-    newsCache[category] = articles;
-  }
-
-  // 表示中のコンテナがあれば再描画をトリガー
-  document.querySelectorAll('[data-news-category]').forEach((el) => {
-    if (el.dataset.newsCategory === category) {
-      const event = new CustomEvent('thumbnails-loaded', { detail: { category } });
-      document.dispatchEvent(event);
-    }
-  });
 }
 
 /**
  * 全ニュースカテゴリをバックグラウンドでプリフェッチ
  */
 function prefetchAllNews() {
-  const categories = Object.keys(NEWS_RSS_URLS);
-  categories.forEach((cat) => {
+  Object.keys(NEWS_RSS_URLS).forEach((cat) => {
     fetchNews(cat).catch(() => {});
   });
 }

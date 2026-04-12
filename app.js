@@ -5,8 +5,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   renderHeader();
   loadWeather();
-  loadNews('economy', 'news-list');
-  loadNews('weekly-economy', 'weekly-news-list');
+  loadNews('popular', 'news-list');
+  loadNews('weekly-popular', 'weekly-news-list');
   setupNewsTabs();
   // 他のタブのデータをバックグラウンドでプリフェッチ
   prefetchAllNews();
@@ -332,16 +332,6 @@ async function loadNews(category, containerId) {
   }
 }
 
-// サムネイル取得完了時にリストを再描画
-document.addEventListener('thumbnails-loaded', (e) => {
-  const { category } = e.detail;
-  for (const [containerId, cat] of Object.entries(containerCategoryMap)) {
-    if (cat === category && newsCache[category]) {
-      renderNews(newsCache[category], containerId);
-    }
-  }
-});
-
 // 各コンテナごとに記事を保持
 const newsArticlesMap = {};
 
@@ -362,10 +352,6 @@ function renderNews(articles, containerId) {
         <li class="news-list__item">
           <button class="news-list__btn" data-index="${i}" data-container="${containerId}">
             <span class="news-list__number">${i + 1}</span>
-            ${article.thumbnail
-              ? `<img class="news-list__thumb" src="${article.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.querySelector('.news-list__thumb-placeholder')?.classList.remove('news-list__thumb-placeholder--hidden');this.style.display='none'">
-                 <span class="news-list__thumb-placeholder news-list__thumb-placeholder--hidden">📰</span>`
-              : '<span class="news-list__thumb-placeholder">📰</span>'}
             <span class="news-list__body">
               <span class="news-list__title">${article.title}</span>
               <span class="news-list__meta">${article.source}${article.source && article.publishedAt ? ' ・ ' : ''}${article.publishedAt}</span>
@@ -405,7 +391,6 @@ function openNewsModal(article) {
         <span class="modal-date">${article.publishedAt || ''}</span>
       </div>
       <h3 class="modal-title">${article.title}</h3>
-      ${article.thumbnail ? `<img class="modal-thumb" src="${article.thumbnail}" alt="" onerror="this.style.display='none'">` : ''}
       <p class="modal-summary">${article.summary || '詳細情報はありません。'}</p>
       <a class="modal-link" href="${article.url}" target="_blank" rel="noopener">
         元の記事を読む →
