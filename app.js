@@ -5,7 +5,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   renderHeader();
   loadWeather();
-  loadNews('economy');
+  loadNews('economy', 'news-list');
+  loadNews('weekly-economy', 'weekly-news-list');
   setupNewsTabs();
 });
 
@@ -156,26 +157,25 @@ function renderTempChart(hourly) {
     i === maxIdx || i === minIdx || i === avgIdx ? 2 : 0
   );
 
-  // 気温ラベルを描画するプラグイン
+  // 気温ラベルを描画するプラグイン（常にポイントの上に表示）
   const tempLabelPlugin = {
     id: 'tempLabels',
     afterDatasetsDraw(chart) {
-      const { ctx: c } = chart;
+      const { ctx: c, chartArea } = chart;
       const meta = chart.getDatasetMeta(0);
 
-      [
+      const items = [
         { idx: labelIndices.max, label: `${maxTemp}°`, color: '#ef4444', tag: '最高' },
         { idx: labelIndices.min, label: `${minTemp}°`, color: '#3b82f6', tag: '最低' },
         { idx: labelIndices.avg, label: `${avgTemp}°`, color: '#8b5cf6', tag: '平均' },
-      ].forEach(({ idx, label, color, tag }) => {
+      ];
+
+      items.forEach(({ idx, label, color, tag }) => {
         if (idx < 0) return;
         const point = meta.data[idx];
         const x = point.x;
         const y = point.y;
-        const isTop = idx === maxIdx;
-        const offsetY = isTop ? -12 : 14;
 
-        // 背景付きラベル
         const text = `${tag} ${label}`;
         c.save();
         c.font = 'bold 10px -apple-system, sans-serif';
@@ -184,20 +184,37 @@ function renderTempChart(hourly) {
         const padY = 3;
         const boxW = textW + padX * 2;
         const boxH = 16 + padY * 2;
-        const boxX = x - boxW / 2;
-        const boxY = y + offsetY - boxH / 2;
 
-        c.fillStyle = color;
-        c.globalAlpha = 0.15;
+        // 常にポイントの上に配置。上端にぶつかる場合は下に出す
+        let centerY = y - 18;
+        if (centerY - boxH / 2 < chartArea.top) {
+          centerY = y + 18;
+        }
+
+        // 左右がチャートエリアからはみ出さないように補正
+        let centerX = x;
+        if (centerX - boxW / 2 < chartArea.left) centerX = chartArea.left + boxW / 2 + 2;
+        if (centerX + boxW / 2 > chartArea.right) centerX = chartArea.right - boxW / 2 - 2;
+
+        // 白背景 + 色付きボーダー
+        c.fillStyle = '#ffffff';
+        c.globalAlpha = 0.92;
         c.beginPath();
-        c.roundRect(boxX, boxY, boxW, boxH, 4);
+        c.roundRect(centerX - boxW / 2, centerY - boxH / 2, boxW, boxH, 4);
         c.fill();
 
         c.globalAlpha = 1;
+        c.strokeStyle = color;
+        c.lineWidth = 1.5;
+        c.beginPath();
+        c.roundRect(centerX - boxW / 2, centerY - boxH / 2, boxW, boxH, 4);
+        c.stroke();
+
+        // テキスト
         c.fillStyle = color;
         c.textAlign = 'center';
         c.textBaseline = 'middle';
-        c.fillText(text, x, y + offsetY);
+        c.fillText(text, centerX, centerY);
         c.restore();
       });
     },
@@ -267,33 +284,46 @@ function renderTempChart(hourly) {
 // ---- ニュースセクション ----
 
 function setupNewsTabs() {
-  document.querySelectorAll('.news-tabs__btn').forEach((btn) => {
+  // 今日のニュースタブ
+  document.querySelectorAll('#news-list').forEach(() => {
+    document.querySelectorAll('.news-tabs:not(#weekly-news-tabs) .news-tabs__btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.closest('.news-tabs').querySelectorAll('.news-tabs__btn').forEach((b) => b.classList.remove('news-tabs__btn--active'));
+        btn.classList.add('news-tabs__btn--active');
+        loadNews(btn.dataset.category, 'news-list');
+      });
+    });
+  });
+
+  // 今週のニュースタブ
+  document.querySelectorAll('#weekly-news-tabs .news-tabs__btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelector('.news-tabs__btn--active')?.classList.remove('news-tabs__btn--active');
+      document.querySelectorAll('#weekly-news-tabs .news-tabs__btn').forEach((b) => b.classList.remove('news-tabs__btn--active'));
       btn.classList.add('news-tabs__btn--active');
-      loadNews(btn.dataset.category);
+      loadNews(btn.dataset.category, 'weekly-news-list');
     });
   });
 }
 
-async function loadNews(category) {
-  const container = document.getElementById('news-list');
+async function loadNews(category, containerId) {
+  const container = document.getElementById(containerId);
   container.innerHTML = loadingHTML();
 
   try {
     const articles = await fetchNews(category);
-    renderNews(articles);
+    renderNews(articles, containerId);
   } catch (e) {
     container.innerHTML = '<p style="color:#ef4444;padding:20px;">ニュースの取得に失敗しました</p>';
     console.error('News fetch error:', e);
   }
 }
 
-let currentArticles = [];
+// 各コンテナごとに記事を保持
+const newsArticlesMap = {};
 
-function renderNews(articles) {
-  const container = document.getElementById('news-list');
-  currentArticles = articles;
+function renderNews(articles, containerId) {
+  const container = document.getElementById(containerId);
+  newsArticlesMap[containerId] = articles;
 
   if (!articles.length) {
     container.innerHTML = '<p style="padding:20px;color:#6b7280;">ニュースがありません</p>';
@@ -306,7 +336,7 @@ function renderNews(articles) {
         .map(
           (article, i) => `
         <li class="news-list__item">
-          <button class="news-list__btn" data-index="${i}">
+          <button class="news-list__btn" data-index="${i}" data-container="${containerId}">
             <span class="news-list__number">${i + 1}</span>
             <span class="news-list__title">${article.title}</span>
             <span class="news-list__arrow">›</span>
@@ -319,7 +349,8 @@ function renderNews(articles) {
 
   container.querySelectorAll('.news-list__btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const article = currentArticles[btn.dataset.index];
+      const cid = btn.dataset.container;
+      const article = newsArticlesMap[cid][btn.dataset.index];
       openNewsModal(article);
     });
   });

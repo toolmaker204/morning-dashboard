@@ -178,9 +178,14 @@ function getClothingSuggestion(high, low) {
 
 // Google News RSS のトピックID（日本語版）
 const NEWS_RSS_URLS = {
-  economy: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
-  it:      'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTXpJU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
-  popular: 'https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja',
+  // 今日のニュース
+  economy:         'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtcGhHZ0pLVUNnQVAB?hl=ja&gl=JP&ceid=JP:ja',
+  it:              'https://news.google.com/rss/search?q=%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+OR+IT+OR+AI&hl=ja&gl=JP&ceid=JP:ja',
+  popular:         'https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja',
+  // 今週のニュース（when:7d で直近7日に絞る）
+  'weekly-economy': 'https://news.google.com/rss/search?q=%E7%B5%8C%E6%B8%88+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-it':      'https://news.google.com/rss/search?q=%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+OR+IT+OR+AI+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
+  'weekly-popular': 'https://news.google.com/rss/search?q=%E8%A9%B1%E9%A1%8C+OR+%E6%B3%A8%E7%9B%AE+when%3A7d&hl=ja&gl=JP&ceid=JP:ja',
 };
 
 async function fetchNews(category) {
