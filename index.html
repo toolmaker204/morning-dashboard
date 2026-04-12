@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>朝ダッシュボード</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <div id="greeting" class="header__greeting"></div>
+    <div id="date" class="header__date"></div>
+    <div id="day" class="header__day"></div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="main">
+
+    <!-- 天気セクション -->
+    <section class="card weather">
+      <h2 class="card__title">
+        <span class="card__title-icon">🌤</span> 今日の天気
+      </h2>
+      <div id="weather-content">
+        <div class="loading"><div class="loading__spinner"></div>読み込み中...</div>
+      </div>
+    </section>
+
+    <!-- ニュースセクション -->
+    <section class="card news">
+      <h2 class="card__title">
+        <span class="card__title-icon">📰</span> 今日のニュース
+      </h2>
+      <nav class="news-tabs">
+        <button class="news-tabs__btn news-tabs__btn--active" data-category="economy">経済</button>
+        <button class="news-tabs__btn" data-category="it">IT</button>
+        <button class="news-tabs__btn" data-category="popular">人気</button>
+      </nav>
+      <div id="news-list">
+        <div class="loading"><div class="loading__spinner"></div>読み込み中...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">朝ダッシュボード &copy; 2026</footer>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

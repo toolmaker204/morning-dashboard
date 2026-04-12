@@ -1,0 +1,631 @@
+/* ============================================
+   朝ダッシュボード - iPhone最適化 / 朝テーマ
+   ============================================ */
+
+:root {
+  /* 朝のカラーパレット */
+  --morning-gradient: linear-gradient(160deg, #fdf6ec 0%, #fce8d5 40%, #e8d5f5 100%);
+  --sunrise-gradient: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 50%, #c471ed 100%);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-bg-solid: #ffffff;
+  --color-text: #2d2640;
+  --color-text-sub: #8b8499;
+  --color-text-light: #b0a8bc;
+  --color-primary: #ff8a5c;
+  --color-primary-light: #fff4ef;
+  --color-accent-purple: #c471ed;
+  --color-accent-blue: #6fa3ef;
+  --color-accent-warm: #ffb347;
+  --color-accent-red: #ff6b6b;
+  --color-border: rgba(0, 0, 0, 0.06);
+  --radius: 20px;
+  --radius-sm: 14px;
+  --shadow: 0 2px 16px rgba(45, 38, 64, 0.06);
+  --shadow-md: 0 8px 30px rgba(45, 38, 64, 0.1);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans',
+    'Noto Sans JP', sans-serif;
+  background: var(--morning-gradient);
+  background-attachment: fixed;
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  overflow-x: hidden;
+}
+
+/* ---- ヘッダー ---- */
+.header {
+  padding: 32px 20px 20px;
+  text-align: center;
+}
+
+.header__greeting {
+  font-size: 0.82rem;
+  color: var(--color-text-sub);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.header__date {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: var(--sunrise-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.02em;
+}
+
+.header__day {
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ---- メインレイアウト (1カラム固定) ---- */
+.main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---- カード共通 ---- */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.card__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-sub);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card__title-icon {
+  font-size: 1rem;
+}
+
+/* ---- 天気セクション ---- */
+.weather {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 天気サマリー */
+.weather-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.weather-summary__icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.8rem;
+  line-height: 1;
+  background: var(--color-primary-light);
+  border-radius: 18px;
+  flex-shrink: 0;
+}
+
+.weather-summary__info {
+  flex: 1;
+}
+
+.weather-summary__text {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.weather-summary__location {
+  font-size: 0.8rem;
+  color: var(--color-text-sub);
+}
+
+/* 気温 */
+.weather-temps {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+  margin-left: 4px;
+}
+
+.weather-temps__high {
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6b6b, #ff8a5c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.weather-temps__low {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-accent-blue);
+}
+
+.weather-temps__label {
+  font-size: 0.7rem;
+  color: var(--color-text-sub);
+  font-weight: 500;
+}
+
+/* 天気詳細チップ */
+.weather-detail {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.weather-detail__item {
+  background: var(--color-primary-light);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---- 天気タイムライン (横スクロール) ---- */
+.weather-timeline {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.weather-timeline::-webkit-scrollbar {
+  height: 3px;
+}
+
+.weather-timeline::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.weather-timeline::-webkit-scrollbar-thumb {
+  background: rgba(255, 138, 92, 0.25);
+  border-radius: 2px;
+}
+
+.weather-timeline__item {
+  flex: 0 0 auto;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 4px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,245,235,0.4) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  scroll-snap-align: start;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.weather-timeline__item:active {
+  transform: scale(0.96);
+}
+
+.weather-timeline__hour {
+  font-size: 0.68rem;
+  color: var(--color-text-sub);
+  font-weight: 600;
+}
+
+.weather-timeline__icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.weather-timeline__temp {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.weather-timeline__rain {
+  font-size: 0.65rem;
+  color: var(--color-accent-blue);
+  font-weight: 500;
+}
+
+/* グラフ */
+.weather-chart {
+  position: relative;
+  height: 180px;
+  background: linear-gradient(180deg, rgba(255,138,92,0.04) 0%, rgba(255,255,255,0) 100%);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+}
+
+/* 傘情報 */
+.umbrella-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.umbrella-info--safe {
+  background: linear-gradient(135deg, #ecfdf5, #e0f7fa);
+  color: #065f46;
+}
+
+.umbrella-info--warn {
+  background: linear-gradient(135deg, #fef3c7, #fee2e2);
+  color: #92400e;
+}
+
+.umbrella-info__icon {
+  font-size: 1.3rem;
+}
+
+/* 服装カード */
+.clothing-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: linear-gradient(135deg, #fff4ef 0%, #fce8d5 50%, #f0e6ff 100%);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.clothing-card__visual {
+  flex-shrink: 0;
+  width: 90px;
+  height: 110px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+
+.clothing-card__visual svg {
+  width: 100%;
+  height: 100%;
+}
+
+.clothing-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.clothing-card__label {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: var(--sunrise-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.clothing-card__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.clothing-card__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: var(--color-text);
+}
+
+.clothing-card__item svg {
+  opacity: 0.6;
+}
+
+.clothing-card__desc {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--color-text-sub);
+}
+
+/* ---- ニュースセクション ---- */
+.news {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ニュースタブ */
+.news-tabs {
+  display: flex;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.news-tabs__btn {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.news-tabs__btn--active {
+  background: var(--card-bg-solid);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ニュースリスト */
+.news-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-list__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.news-list__item:last-child {
+  border-bottom: none;
+}
+
+.news-list__btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 2px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  font-family: inherit;
+  transition: opacity 0.2s;
+  gap: 8px;
+}
+
+.news-list__btn:active {
+  opacity: 0.6;
+}
+
+.news-list__title {
+  flex: 1;
+}
+
+.news-list__arrow {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  font-weight: 300;
+}
+
+.news-list__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--sunrise-gradient);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* ---- モーダル ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 38, 64, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay--visible {
+  opacity: 1;
+}
+
+.modal-content {
+  background: var(--card-bg-solid);
+  border-radius: 24px 24px 0 0;
+  max-width: 480px;
+  width: 100%;
+  padding: 12px 24px calc(24px + var(--safe-bottom));
+  position: relative;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-overlay--visible .modal-content {
+  transform: translateY(0);
+}
+
+.modal-handle {
+  width: 36px;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 3px;
+  margin: 0 auto 20px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-sub);
+  transition: background 0.2s;
+}
+
+.modal-close:active {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.modal-source {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--sunrise-gradient);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.modal-date {
+  font-size: 0.78rem;
+  color: var(--color-text-sub);
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.modal-summary {
+  font-size: 0.9rem;
+  line-height: 2;
+  color: #4a4458;
+  margin-bottom: 24px;
+}
+
+.modal-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  padding: 14px;
+  background: var(--sunrise-gradient);
+  border-radius: 14px;
+  transition: opacity 0.2s;
+}
+
+.modal-link:active {
+  opacity: 0.8;
+}
+
+/* ---- ローディング ---- */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--color-text-sub);
+  font-size: 0.88rem;
+}
+
+.loading__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 138, 92, 0.2);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- フッター ---- */
+.footer {
+  text-align: center;
+  padding: 16px 20px 24px;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
