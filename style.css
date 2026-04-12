@@ -458,6 +458,22 @@ body {
   background: var(--color-bg);
 }
 
+.news-list__thumb-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #fff4ef, #f0e6ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.news-list__thumb-placeholder--hidden {
+  display: none;
+}
+
 .news-list__body {
   flex: 1;
   min-width: 0;

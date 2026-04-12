@@ -315,9 +315,13 @@ function setupNewsTabs() {
   });
 }
 
+// コンテナ → カテゴリのマッピング（サムネイル再描画用）
+const containerCategoryMap = {};
+
 async function loadNews(category, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = loadingHTML();
+  containerCategoryMap[containerId] = category;
 
   try {
     const articles = await fetchNews(category);
@@ -327,6 +331,16 @@ async function loadNews(category, containerId) {
     console.error('News fetch error:', e);
   }
 }
+
+// サムネイル取得完了時にリストを再描画
+document.addEventListener('thumbnails-loaded', (e) => {
+  const { category } = e.detail;
+  for (const [containerId, cat] of Object.entries(containerCategoryMap)) {
+    if (cat === category && newsCache[category]) {
+      renderNews(newsCache[category], containerId);
+    }
+  }
+});
 
 // 各コンテナごとに記事を保持
 const newsArticlesMap = {};
@@ -349,8 +363,9 @@ function renderNews(articles, containerId) {
           <button class="news-list__btn" data-index="${i}" data-container="${containerId}">
             <span class="news-list__number">${i + 1}</span>
             ${article.thumbnail
-              ? `<img class="news-list__thumb" src="${article.thumbnail}" alt="" loading="lazy" onerror="this.style.display='none'">`
-              : ''}
+              ? `<img class="news-list__thumb" src="${article.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.querySelector('.news-list__thumb-placeholder')?.classList.remove('news-list__thumb-placeholder--hidden');this.style.display='none'">
+                 <span class="news-list__thumb-placeholder news-list__thumb-placeholder--hidden">📰</span>`
+              : '<span class="news-list__thumb-placeholder">📰</span>'}
             <span class="news-list__body">
               <span class="news-list__title">${article.title}</span>
               <span class="news-list__meta">${article.source}${article.source && article.publishedAt ? ' ・ ' : ''}${article.publishedAt}</span>

@@ -220,13 +220,6 @@ async function fetchNews(category) {
     const pubDate = new Date(item.pubDate);
     const publishedAt = `${pubDate.getMonth() + 1}/${pubDate.getDate()} ${pubDate.getHours()}:${String(pubDate.getMinutes()).padStart(2, '0')}`;
 
-    // description からサムネイル画像を抽出
-    let thumbnail = item.thumbnail || item.enclosure?.link || '';
-    if (!thumbnail && item.description) {
-      const imgMatch = item.description.match(/<img[^>]+src=["']([^"']+)["']/);
-      if (imgMatch) thumbnail = imgMatch[1];
-    }
-
     // description から要約テキストを抽出（HTMLタグ除去）
     const summary = item.description
       ? item.description.replace(/<[^>]*>/g, '').trim().slice(0, 200)
@@ -237,13 +230,56 @@ async function fetchNews(category) {
       url: item.link,
       source,
       publishedAt,
-      thumbnail,
+      thumbnail: '',
       summary: summary || 'この記事の詳細は元のサイトでご覧ください。',
     };
   });
 
   newsCache[category] = articles;
+
+  // バックグラウンドで og:image サムネイルを取得
+  fetchOgImages(articles, category);
+
   return articles;
+}
+
+/**
+ * 各記事の og:image をバックグラウンドで取得しキャッシュを更新する
+ * allorigins.win を CORSプロキシとして使用
+ */
+async function fetchOgImages(articles, category) {
+  const promises = articles.map(async (article, i) => {
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(article.url)}`;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) return;
+      const html = await res.text();
+
+      // og:image を抽出
+      const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+                    || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+      if (ogMatch && ogMatch[1]) {
+        article.thumbnail = ogMatch[1];
+      }
+    } catch {
+      // サムネイル取得失敗は無視
+    }
+  });
+
+  await Promise.allSettled(promises);
+
+  // キャッシュを更新
+  if (newsCache[category]) {
+    newsCache[category] = articles;
+  }
+
+  // 表示中のコンテナがあれば再描画をトリガー
+  document.querySelectorAll('[data-news-category]').forEach((el) => {
+    if (el.dataset.newsCategory === category) {
+      const event = new CustomEvent('thumbnails-loaded', { detail: { category } });
+      document.dispatchEvent(event);
+    }
+  });
 }
 
 /**
