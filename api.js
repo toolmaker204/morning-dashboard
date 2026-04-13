@@ -265,47 +265,26 @@ function fetchWithTimeout(url, timeoutMs) {
 
 /**
  * 鉄道遅延情報を取得する
- * rti-giken.jp APIを5秒タイムアウトで試し、失敗時はGoogle News RSSにフォールバック
- * @returns {Promise<{source: string, items: Array}>}
+ * 複数経路を並列で試し、最初に成功した結果を返す
+ * @returns {Promise<Array>} 遅延中の路線配列 [{name, company}]
  */
 async function fetchTrainDelay() {
   if (trainDelayCache) return trainDelayCache;
 
-  // まず rti-giken API を試す（5秒タイムアウト）
-  try {
-    const res = await fetchWithTimeout('https://tetsudo.rti-giken.jp/free/delay.json', 5000);
-    if (res.ok) {
-      const data = await res.json();
-      trainDelayCache = { source: 'api', items: data };
-      return trainDelayCache;
-    }
-  } catch (_) {
-    // タイムアウトまたはネットワークエラー → フォールバック
-  }
+  const DELAY_API = 'https://tetsudo.rti-giken.jp/free/delay.json';
 
-  // フォールバック: Google News RSSから遅延関連ニュースを取得
-  try {
-    const rssUrl = 'https://news.google.com/rss/search?q=%E9%81%85%E5%BB%B6+OR+%E9%81%8B%E8%BB%A2%E8%A6%8B%E5%90%88%E3%82%8F%E3%81%9B+%E9%89%84%E9%81%93+when%3A1d&hl=ja&gl=JP&ceid=JP:ja';
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-    const res = await fetchWithTimeout(apiUrl, 8000);
-    if (!res.ok) throw new Error('RSS fetch failed');
-    const data = await res.json();
-    if (data.status !== 'ok' || !data.items) throw new Error('RSS parse error');
+  // 直接アクセスとCORSプロキシ経由を並列で試す
+  const attempts = [
+    fetchWithTimeout(DELAY_API, 8000)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+    fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(DELAY_API)}`, 8000)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+  ];
 
-    const items = data.items.slice(0, 10).map((item) => {
-      const titleParts = item.title.split(' - ');
-      const source = titleParts.length > 1 ? titleParts.pop().trim() : '';
-      const title = titleParts.join(' - ').trim();
-      const pubDate = new Date(item.pubDate);
-      const time = `${pubDate.getHours()}:${String(pubDate.getMinutes()).padStart(2, '0')}`;
-      return { title, source, time, url: item.link };
-    });
-
-    trainDelayCache = { source: 'news', items };
-    return trainDelayCache;
-  } catch (_) {
-    throw new Error('遅延情報の取得に失敗しました');
-  }
+  // 最初に成功したものを採用
+  const data = await Promise.any(attempts);
+  trainDelayCache = data;
+  return trainDelayCache;
 }
 
 /**

@@ -49,10 +49,15 @@ async function loadTrainDelay() {
   container.innerHTML = loadingHTML();
 
   try {
-    const result = await fetchTrainDelay();
-    renderTrainDelay(result);
+    const delays = await fetchTrainDelay();
+    renderTrainDelay(delays);
   } catch (e) {
-    container.innerHTML = '<p style="color:#ef4444;padding:20px;">遅延情報の取得に失敗しました</p>';
+    container.innerHTML = `
+      <div class="delay-error">
+        <div class="delay-error__text">遅延情報を取得できませんでした</div>
+        <button class="delay-refresh" onclick="refreshTrainDelay()">🔄 再試行</button>
+      </div>
+    `;
     console.error('Train delay fetch error:', e);
   }
 }
@@ -63,61 +68,34 @@ function refreshTrainDelay() {
   loadTrainDelay();
 }
 
-function renderTrainDelay(result) {
+function renderTrainDelay(delays) {
   const container = document.getElementById('delay-content');
-  const { source, items } = result;
 
-  // APIソース: 路線一覧表示
-  if (source === 'api') {
-    if (!items.length) {
-      container.innerHTML = `
-        <div class="delay-status delay-status--ok">
-          <span class="delay-status__icon">✅</span>
-          <div class="delay-status__text">
-            <div class="delay-status__title">現在、遅延している路線はありません</div>
-            <div class="delay-status__sub">すべての路線が平常運転です</div>
-          </div>
-        </div>
-        <button class="delay-refresh" onclick="refreshTrainDelay()">🔄 更新する</button>
-      `;
-      return;
-    }
-
+  if (!delays.length) {
     container.innerHTML = `
-      <div class="delay-summary">
-        <span class="delay-summary__count">${items.length}</span>
-        <span class="delay-summary__text">路線で遅延が発生中</span>
+      <div class="delay-status delay-status--ok">
+        <span class="delay-status__icon">✅</span>
+        <div class="delay-status__text">
+          <div class="delay-status__title">現在、遅延している路線はありません</div>
+          <div class="delay-status__sub">すべての路線が平常運転です</div>
+        </div>
       </div>
-      <ul class="delay-list">
-        ${items.map((d) => `
-          <li class="delay-list__item">
-            <span class="delay-list__icon">⚠️</span>
-            <span class="delay-list__name">${d.name}</span>
-            ${d.company ? `<span class="delay-list__company">${d.company}</span>` : ''}
-          </li>
-        `).join('')}
-      </ul>
       <button class="delay-refresh" onclick="refreshTrainDelay()">🔄 更新する</button>
     `;
     return;
   }
 
-  // ニュースフォールバック: 遅延関連ニュース表示
   container.innerHTML = `
-    <div class="delay-notice">
-      <span class="delay-notice__icon">📡</span>
-      直近の鉄道遅延・運行情報ニュース
+    <div class="delay-summary">
+      <span class="delay-summary__count">${delays.length}</span>
+      <span class="delay-summary__text">路線で遅延が発生中</span>
     </div>
-    <ul class="delay-news-list">
-      ${items.map((d) => `
-        <li class="delay-news-list__item">
-          <a class="delay-news-list__link" href="${d.url}" target="_blank" rel="noopener">
-            <span class="delay-news-list__title">${d.title}</span>
-            <span class="delay-news-list__meta">
-              ${d.source ? `<span class="delay-news-list__source">${d.source}</span>` : ''}
-              <span class="delay-news-list__time">${d.time}</span>
-            </span>
-          </a>
+    <ul class="delay-list">
+      ${delays.map((d) => `
+        <li class="delay-list__item">
+          <span class="delay-list__icon">⚠️</span>
+          <span class="delay-list__name">${d.name}</span>
+          ${d.company ? `<span class="delay-list__company">${d.company}</span>` : ''}
         </li>
       `).join('')}
     </ul>
