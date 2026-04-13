@@ -59,10 +59,10 @@ body {
   z-index: 100;
   display: flex;
   justify-content: center;
-  gap: 0;
+  gap: 6px;
   max-width: 480px;
   margin: 0 auto;
-  padding: 8px 16px;
+  padding: 10px 16px 10px;
   background: rgba(253, 246, 236, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -71,13 +71,13 @@ body {
 .global-nav__btn {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 8px 4px;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
   border: none;
-  background: transparent;
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.25s ease;
   font-family: inherit;
@@ -85,16 +85,16 @@ body {
 
 .global-nav__btn--active {
   background: var(--card-bg-solid);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .global-nav__icon {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   line-height: 1;
 }
 
 .global-nav__label {
-  font-size: 0.7rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--color-text-sub);
   transition: color 0.25s;
@@ -102,6 +102,12 @@ body {
 
 .global-nav__btn--active .global-nav__label {
   color: var(--color-text);
+}
+
+#weather-top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* ---- ページ表示切替 ---- */
@@ -343,40 +349,50 @@ body {
   padding: 8px 4px;
 }
 
-/* 傘情報 */
-.umbrella-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.88rem;
-  font-weight: 600;
+/* 傘カード（独立カード） */
+.umbrella-card {
+  padding: 0;
+  overflow: hidden;
 }
 
-.umbrella-info--safe {
+.umbrella-card__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.umbrella-card--safe {
   background: linear-gradient(135deg, #ecfdf5, #e0f7fa);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.umbrella-card--safe .umbrella-card__text {
   color: #065f46;
 }
 
-.umbrella-info--warn {
+.umbrella-card--warn {
   background: linear-gradient(135deg, #fef3c7, #fee2e2);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.umbrella-card--warn .umbrella-card__text {
   color: #92400e;
 }
 
-.umbrella-info__icon {
-  font-size: 1.3rem;
+.umbrella-card__icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
 }
 
-/* 服装カード */
+/* 服装カード（独立カード） */
 .clothing-card {
   display: flex;
   align-items: flex-start;
   gap: 16px;
   background: linear-gradient(135deg, #fff4ef 0%, #fce8d5 50%, #f0e6ff 100%);
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .clothing-card__visual {

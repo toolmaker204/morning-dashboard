@@ -130,6 +130,38 @@ async function loadWeather() {
 function renderWeather(data) {
   const container = document.getElementById('weather-content');
 
+  // 傘・服装を天気カードの上に独立カードとして表示
+  const topContainer = document.getElementById('weather-top');
+  topContainer.innerHTML = `
+    <div class="card umbrella-card ${data.needUmbrella ? 'umbrella-card--warn' : 'umbrella-card--safe'}">
+      <div class="umbrella-card__inner">
+        <span class="umbrella-card__icon">${data.needUmbrella ? '☂️' : '☀️'}</span>
+        <div class="umbrella-card__text">
+          ${data.needUmbrella
+            ? '今日は傘を持っていきましょう'
+            : '今日は傘の心配はなさそうです'}
+        </div>
+      </div>
+    </div>
+
+    <div class="card clothing-card">
+      <div class="clothing-card__visual">
+        ${getClothingSVG(data.clothing.level)}
+      </div>
+      <div class="clothing-card__info">
+        <div class="clothing-card__label">${data.clothing.label}</div>
+        <div class="clothing-card__items">
+          ${data.clothing.items.map((item) => `
+            <span class="clothing-card__item">
+              ${getItemIcon(item.icon)} ${item.name}
+            </span>
+          `).join('')}
+        </div>
+        <div class="clothing-card__desc">${data.clothing.description}</div>
+      </div>
+    </div>
+  `;
+
   container.innerHTML = `
     <div class="weather-summary">
       <span class="weather-summary__icon">${data.icon}</span>
@@ -146,30 +178,6 @@ function renderWeather(data) {
           <div class="weather-temps__low">${data.low}°</div>
           <div class="weather-temps__label">最低</div>
         </div>
-      </div>
-    </div>
-
-    <div class="umbrella-info ${data.needUmbrella ? 'umbrella-info--warn' : 'umbrella-info--safe'}">
-      <span class="umbrella-info__icon">${data.needUmbrella ? '☂️' : '☀️'}</span>
-      ${data.needUmbrella
-        ? '今日は傘を持っていきましょう'
-        : '今日は傘の心配はなさそうです'}
-    </div>
-
-    <div class="clothing-card">
-      <div class="clothing-card__visual">
-        ${getClothingSVG(data.clothing.level)}
-      </div>
-      <div class="clothing-card__info">
-        <div class="clothing-card__label">${data.clothing.label}</div>
-        <div class="clothing-card__items">
-          ${data.clothing.items.map((item) => `
-            <span class="clothing-card__item">
-              ${getItemIcon(item.icon)} ${item.name}
-            </span>
-          `).join('')}
-        </div>
-        <div class="clothing-card__desc">${data.clothing.description}</div>
       </div>
     </div>
 
