@@ -149,8 +149,8 @@ function renderWeather(data) {
         <span class="umbrella-card__icon">${data.needUmbrella ? '☂️' : '☀️'}</span>
         <div class="umbrella-card__text">
           ${data.needUmbrella
-            ? '今日は傘を持っていきましょう'
-            : '今日は傘の心配はなさそうです'}
+            ? `今日は傘を持っていきましょう（最大${data.maxRainChance}%）`
+            : `今日は傘の心配はなさそうです（最大${data.maxRainChance}%）`}
         </div>
       </div>
     </div>

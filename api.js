@@ -34,7 +34,12 @@ function mapWeatherResponse(data) {
   const high = Math.round(day.maxtemp_c);
   const low = Math.round(day.mintemp_c);
   const rainChance = day.daily_chance_of_rain;
-  const maxRainInHours = Math.max(...hours.map((h) => h.chance_of_rain));
+  // 外出時間帯（6時〜22時）の降水確率で判定
+  const activeHours = hours.filter((h) => {
+    const hr = new Date(h.time).getHours();
+    return hr >= 6 && hr <= 22;
+  });
+  const maxRainInActiveHours = Math.max(...activeHours.map((h) => h.chance_of_rain));
 
   // 時間ごとのデータを変換
   const hourly = hours.map((h) => {
@@ -62,7 +67,8 @@ function mapWeatherResponse(data) {
     humidity: current.humidity,
     wind: `${windDir} ${windSpeed}m/s`,
     rainChance,
-    needUmbrella: maxRainInHours >= 40,
+    needUmbrella: maxRainInActiveHours >= 50,
+    maxRainChance: maxRainInActiveHours,
     hourly,
     clothing: getClothingSuggestion(high, low),
   };
