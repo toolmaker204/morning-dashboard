@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf6ec"/>
+      <stop offset="40%" stop-color="#fce8d5"/>
+      <stop offset="100%" stop-color="#ff9a56"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffcf48"/>
+      <stop offset="100%" stop-color="#ff8a5c"/>
+    </linearGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8d5f5"/>
+      <stop offset="100%" stop-color="#c9aee8"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0d9ff"/>
+      <stop offset="100%" stop-color="#dbb8f0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background sky -->
+  <rect width="512" height="512" rx="96" fill="url(#sky)"/>
+  <!-- Sun rays -->
+  <g opacity="0.3">
+    <line x1="256" y1="240" x2="256" y2="120" stroke="#ffcf48" stroke-width="8" stroke-linecap="round"/>
+    <line x1="256" y1="240" x2="160" y2="148" stroke="#ffcf48" stroke-width="8" stroke-linecap="round"/>
+    <line x1="256" y1="240" x2="352" y2="148" stroke="#ffcf48" stroke-width="8" stroke-linecap="round"/>
+    <line x1="256" y1="240" x2="120" y2="210" stroke="#ffcf48" stroke-width="8" stroke-linecap="round"/>
+    <line x1="256" y1="240" x2="392" y2="210" stroke="#ffcf48" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <!-- Sun -->
+  <circle cx="256" cy="260" r="72" fill="url(#sun)"/>
+  <!-- Horizon glow -->
+  <ellipse cx="256" cy="340" rx="220" ry="40" fill="#ffb347" opacity="0.25"/>
+  <!-- Hills back -->
+  <path d="M0 380 Q80 300 180 340 Q280 280 360 330 Q440 300 512 340 L512 512 L0 512 Z" fill="url(#hill1)" opacity="0.7"/>
+  <!-- Hills front -->
+  <path d="M0 400 Q100 340 200 380 Q300 330 400 370 Q460 350 512 380 L512 512 L0 512 Z" fill="url(#hill2)" opacity="0.8"/>
+  <!-- Small clouds -->
+  <g opacity="0.6">
+    <ellipse cx="120" cy="180" rx="40" ry="16" fill="white"/>
+    <ellipse cx="100" cy="180" rx="24" ry="12" fill="white"/>
+    <ellipse cx="400" cy="160" rx="36" ry="14" fill="white"/>
+    <ellipse cx="380" cy="160" rx="22" ry="10" fill="white"/>
+  </g>
+</svg>

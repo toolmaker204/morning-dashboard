@@ -248,3 +248,20 @@ function prefetchAllNews() {
     fetchNews(cat).catch(() => {});
   });
 }
+
+// ---- 鉄道遅延情報 ----
+
+/**
+ * 鉄道遅延情報を取得する（rti-giken.jp 公開API）
+ * @returns {Promise<Array>} 遅延中の路線名の配列
+ */
+async function fetchTrainDelay() {
+  const url = 'https://tetsudo.rti-giken.jp/free/delay.json';
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Train delay API error: ${res.status}`);
+  }
+
+  return await res.json();
+}

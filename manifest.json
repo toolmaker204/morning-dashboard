@@ -1,0 +1,17 @@
+{
+  "name": "朝ダッシュボード",
+  "short_name": "朝ダッシュ",
+  "description": "天気・ニュース・遅延情報をまとめてチェック",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fdf6ec",
+  "theme_color": "#fdf6ec",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

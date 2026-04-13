@@ -3,7 +3,9 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  generateAppleTouchIcon();
   renderHeader();
+  setupGlobalNav();
   loadWeather();
   loadNews('popular', 'news-list');
   loadNews('weekly-popular', 'weekly-news-list');
@@ -11,6 +13,84 @@ document.addEventListener('DOMContentLoaded', () => {
   // 他のタブのデータをバックグラウンドでプリフェッチ
   prefetchAllNews();
 });
+
+// ---- グローバルナビゲーション ----
+
+function setupGlobalNav() {
+  const navBtns = document.querySelectorAll('.global-nav__btn');
+  navBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const page = btn.dataset.page;
+
+      // ナビボタンのアクティブ切替
+      navBtns.forEach((b) => b.classList.remove('global-nav__btn--active'));
+      btn.classList.add('global-nav__btn--active');
+
+      // ページの表示切替
+      document.querySelectorAll('.page').forEach((p) => p.classList.remove('page--active'));
+      document.getElementById(`page-${page}`).classList.add('page--active');
+
+      // 遅延情報ページを初めて開いた時にデータを読み込む
+      if (page === 'delay' && !delayLoaded) {
+        loadTrainDelay();
+        delayLoaded = true;
+      }
+    });
+  });
+}
+
+// ---- 遅延情報セクション ----
+
+let delayLoaded = false;
+
+async function loadTrainDelay() {
+  const container = document.getElementById('delay-content');
+  container.innerHTML = loadingHTML();
+
+  try {
+    const delays = await fetchTrainDelay();
+    renderTrainDelay(delays);
+  } catch (e) {
+    container.innerHTML = '<p style="color:#ef4444;padding:20px;">遅延情報の取得に失敗しました</p>';
+    console.error('Train delay fetch error:', e);
+  }
+}
+
+function renderTrainDelay(delays) {
+  const container = document.getElementById('delay-content');
+
+  if (!delays.length) {
+    container.innerHTML = `
+      <div class="delay-status delay-status--ok">
+        <span class="delay-status__icon">✅</span>
+        <div class="delay-status__text">
+          <div class="delay-status__title">現在、遅延している路線はありません</div>
+          <div class="delay-status__sub">すべての路線が平常運転です</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="delay-summary">
+      <span class="delay-summary__count">${delays.length}</span>
+      <span class="delay-summary__text">路線で遅延が発生中</span>
+    </div>
+    <ul class="delay-list">
+      ${delays.map((d) => `
+        <li class="delay-list__item">
+          <span class="delay-list__icon">⚠️</span>
+          <span class="delay-list__name">${d.name}</span>
+          ${d.company ? `<span class="delay-list__company">${d.company}</span>` : ''}
+        </li>
+      `).join('')}
+    </ul>
+    <button class="delay-refresh" onclick="delayLoaded=false;loadTrainDelay();">
+      🔄 更新する
+    </button>
+  `;
+}
 
 // ---- ヘッダー（日付表示） ----
 
@@ -69,27 +149,6 @@ function renderWeather(data) {
       </div>
     </div>
 
-    <div class="weather-detail">
-      <div class="weather-detail__item">💧 湿度 ${data.humidity}%</div>
-      <div class="weather-detail__item">💨 ${data.wind}</div>
-      <div class="weather-detail__item">🌧 降水確率 ${data.rainChance}%</div>
-    </div>
-
-    <div class="weather-timeline">
-      ${data.hourly.map((h) => `
-        <div class="weather-timeline__item">
-          <div class="weather-timeline__hour">${h.hour}</div>
-          <div class="weather-timeline__icon">${h.icon}</div>
-          <div class="weather-timeline__temp">${h.temp}°</div>
-          <div class="weather-timeline__rain">💧${h.rain}%</div>
-        </div>
-      `).join('')}
-    </div>
-
-    <div class="weather-chart">
-      <canvas id="temp-chart"></canvas>
-    </div>
-
     <div class="umbrella-info ${data.needUmbrella ? 'umbrella-info--warn' : 'umbrella-info--safe'}">
       <span class="umbrella-info__icon">${data.needUmbrella ? '☂️' : '☀️'}</span>
       ${data.needUmbrella
@@ -112,6 +171,27 @@ function renderWeather(data) {
         </div>
         <div class="clothing-card__desc">${data.clothing.description}</div>
       </div>
+    </div>
+
+    <div class="weather-detail">
+      <div class="weather-detail__item">💧 湿度 ${data.humidity}%</div>
+      <div class="weather-detail__item">💨 ${data.wind}</div>
+      <div class="weather-detail__item">🌧 降水確率 ${data.rainChance}%</div>
+    </div>
+
+    <div class="weather-timeline">
+      ${data.hourly.map((h) => `
+        <div class="weather-timeline__item">
+          <div class="weather-timeline__hour">${h.hour}</div>
+          <div class="weather-timeline__icon">${h.icon}</div>
+          <div class="weather-timeline__temp">${h.temp}°</div>
+          <div class="weather-timeline__rain">💧${h.rain}%</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="weather-chart">
+      <canvas id="temp-chart"></canvas>
     </div>
   `;
 
@@ -571,4 +651,23 @@ function getItemIcon(icon) {
 
 function loadingHTML() {
   return '<div class="loading"><div class="loading__spinner"></div>読み込み中...</div>';
+}
+
+/**
+ * SVGアイコンをcanvasでPNG化してapple-touch-iconに設定
+ */
+function generateAppleTouchIcon() {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 180;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, 180, 180);
+    const link = document.getElementById('apple-touch-icon');
+    if (link) {
+      link.href = canvas.toDataURL('image/png');
+    }
+  };
+  img.src = 'icon.svg';
 }
