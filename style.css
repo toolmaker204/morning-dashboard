@@ -104,6 +104,35 @@ body {
   color: var(--color-text);
 }
 
+/* ---- 都道府県セレクター ---- */
+.prefecture-selector {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.prefecture-selector__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--card-bg-solid);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 8px 32px 8px 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%238b8499' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.prefecture-selector__select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
 #weather-top {
   display: flex;
   flex-direction: column;

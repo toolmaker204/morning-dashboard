@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   generateAppleTouchIcon();
   renderHeader();
   setupGlobalNav();
+  setupPrefectureSelector();
   loadWeather();
   loadNews('popular', 'news-list');
   loadNews('weekly-popular', 'weekly-news-list');
@@ -14,6 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
   prefetchAllNews();
   prefetchTrainDelay();
 });
+
+// ---- 都道府県セレクター ----
+
+function setupPrefectureSelector() {
+  const select = document.getElementById('prefecture-select');
+  const prefectures = Object.keys(PREFECTURE_LOCATIONS);
+  const current = getSelectedPrefecture();
+
+  prefectures.forEach((pref) => {
+    const option = document.createElement('option');
+    option.value = pref;
+    option.textContent = pref;
+    if (pref === current) option.selected = true;
+    select.appendChild(option);
+  });
+
+  select.addEventListener('change', () => {
+    setSelectedPrefecture(select.value);
+    loadWeather();
+  });
+}
 
 // ---- グローバルナビゲーション ----
 
