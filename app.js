@@ -171,9 +171,9 @@ function renderWeather(data) {
         <span class="umbrella-card__icon">${data.umbrellaType === 'full' ? '☂️' : data.umbrellaType === 'folding' ? '🌂' : '☀️'}</span>
         <div class="umbrella-card__text">
           ${data.umbrellaType === 'full'
-            ? `長い傘を持っていきましょう（最大${data.maxRainChance}%）`
+            ? `長い傘を持っていきましょう（最大${data.maxRainChance}%・${data.rainyHoursCount}時間）`
             : data.umbrellaType === 'folding'
-            ? `折りたたみ傘があると安心です（最大${data.maxRainChance}%）`
+            ? `折りたたみ傘があると安心です（最大${data.maxRainChance}%・${data.rainyHoursCount}時間）`
             : `今日は傘の心配はなさそうです（最大${data.maxRainChance}%）`}
         </div>
       </div>

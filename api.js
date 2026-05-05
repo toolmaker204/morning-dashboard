@@ -68,6 +68,8 @@ function mapWeatherResponse(data) {
     return hr >= 6 && hr <= 22;
   });
   const maxRainInActiveHours = Math.max(...activeHours.map((h) => h.chance_of_rain));
+  // 降水確率50%以上の時間数（降り続くかどうかの判定用）
+  const rainyHoursCount = activeHours.filter((h) => h.chance_of_rain >= 50).length;
 
   // 時間ごとのデータを変換
   const hourly = hours.map((h) => {
@@ -96,8 +98,12 @@ function mapWeatherResponse(data) {
     wind: `${windDir} ${windSpeed}m/s`,
     rainChance,
     // 傘判定: none / folding / full
-    umbrellaType: maxRainInActiveHours >= 70 ? 'full' : maxRainInActiveHours >= 50 ? 'folding' : 'none',
+    // 長い傘: 70%以上 or 50%以上が4時間以上続く（降り続く雨）
+    // 折りたたみ: 50%以上だが短時間（時々降る程度）
+    umbrellaType: (maxRainInActiveHours >= 70 || rainyHoursCount >= 4) ? 'full'
+      : maxRainInActiveHours >= 50 ? 'folding' : 'none',
     maxRainChance: maxRainInActiveHours,
+    rainyHoursCount,
     hourly,
     clothing: getClothingSuggestion(high, low),
   };
