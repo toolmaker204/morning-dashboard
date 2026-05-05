@@ -95,7 +95,8 @@ function mapWeatherResponse(data) {
     humidity: current.humidity,
     wind: `${windDir} ${windSpeed}m/s`,
     rainChance,
-    needUmbrella: maxRainInActiveHours >= 50,
+    // 傘判定: none / folding / full
+    umbrellaType: maxRainInActiveHours >= 70 ? 'full' : maxRainInActiveHours >= 50 ? 'folding' : 'none',
     maxRainChance: maxRainInActiveHours,
     hourly,
     clothing: getClothingSuggestion(high, low),

@@ -166,12 +166,14 @@ function renderWeather(data) {
   // 傘・服装を天気カードの上に独立カードとして表示
   const topContainer = document.getElementById('weather-top');
   topContainer.innerHTML = `
-    <div class="card umbrella-card ${data.needUmbrella ? 'umbrella-card--warn' : 'umbrella-card--safe'}">
+    <div class="card umbrella-card ${data.umbrellaType !== 'none' ? 'umbrella-card--warn' : 'umbrella-card--safe'}">
       <div class="umbrella-card__inner">
-        <span class="umbrella-card__icon">${data.needUmbrella ? '☂️' : '☀️'}</span>
+        <span class="umbrella-card__icon">${data.umbrellaType === 'full' ? '☂️' : data.umbrellaType === 'folding' ? '🌂' : '☀️'}</span>
         <div class="umbrella-card__text">
-          ${data.needUmbrella
-            ? `今日は傘を持っていきましょう（最大${data.maxRainChance}%）`
+          ${data.umbrellaType === 'full'
+            ? `長い傘を持っていきましょう（最大${data.maxRainChance}%）`
+            : data.umbrellaType === 'folding'
+            ? `折りたたみ傘があると安心です（最大${data.maxRainChance}%）`
             : `今日は傘の心配はなさそうです（最大${data.maxRainChance}%）`}
         </div>
       </div>
